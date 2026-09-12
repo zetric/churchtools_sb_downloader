@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Application Submitted</title>
+    {% include 'bootstrap.html' %}
+  </head>
+  <body>
+    {% include 'nav.html' %}
+    {% include 'banner.html' %}
+
+    <div class="container">
+      <h1 class="text-center mt-2 mb-4">Super training</h1>
+
+      <p>Your application for the training <b>{{training['title']}}</b> has submitted.</p>
+
+      <b>Full Name</b>
+      <div class="mb-2">{{application['full_name']}}</div>
+
+      <b>Email</b>
+      <div class="mb-2">{{application['email']}}</div>
+
+      <b>LnkedIn URL</b>
+      <div class="mb-2">{{application['linkedin_url']}}</div>
+
+      <b>Education</b>
+      <div class="mb-2">{{application['education']}}</div>
+
+      <b>Training Experience</b>
+      <div class="mb-2">{{application['training_experience']}}</div>
+    </div>
+    {% include 'footer.html' %}
+  </body>
+</html>
