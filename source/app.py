@@ -30,10 +30,10 @@ def main():
     # Early definitions to not let the renering function fail
     calendar_names = []
     events_calendar = []
+    agenda_items = []
 
     # Get calendar names to use them later to query the events associated with the right calendar
     calendars_json = ct.ct_get_calendars()
-
     for calendar in calendars_json:
       calendar_names.append(calendar['name'])
 
@@ -53,15 +53,19 @@ def main():
       for event in events:
         if event['calendar']['title'] == env_data['calendar_selected']:
           events_calendar.append(event)
-    
       
-    print(env_data)
+      print(env_data['event_selected'])
+
+      if 'event_selected' in env_data:
+        # Get event agenda
+        agenda_items = ct.ct_get_agenda(event_id=env_data['event_selected'])['items']
 
     return render_template(
       'home.html',
       env_data=env_data,
       calendar_names=calendar_names,
       events_calendar=events_calendar,
+      agenda_items=agenda_items
     )
 
 

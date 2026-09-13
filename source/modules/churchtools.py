@@ -51,7 +51,18 @@ class churchtools:
         logger.error(result.text)
 
 
+  def ct_get_agenda(self, event_id) -> json:
 
+    # --- Get a agenda of an event by event_id
+
+    try:
+      (result:= requests.get(url = f"{self.CT_URL}/events/{event_id}/agenda", headers = self.CT_HEADERS_JSON)).raise_for_status()
+      result_json = json.loads(result.text)
+      result_json_complete = result_json["data"]
+      return result_json_complete
+    except requests.exceptions.HTTPError as err:
+        logger.error(err)
+        logger.error(result.text)
 
 
 
