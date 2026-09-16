@@ -3,10 +3,8 @@
   <head>
     <title>ChurchTools SongBeamer Downloader</title>
     {% include 'bootstrap.html' %}
-    {% include 'scripts.html' %}
   </head>
   <body>
-    <!-- {% include 'nav.html' %} -->
     <div class="container col-md-6">
        {% include 'banner.html' %}
       <div class="row">
@@ -38,7 +36,12 @@
           </div>
           {% endif %}
           <br>
-          {% if events_calendar %}
+          {% if not events_calendar %}
+          <div>
+            <p class="text-secondary position-absolute start-50 translate-middle">Wenn keine Events angezeigt werden, fehlen ggf. Rechte.</p>
+          </div>
+          <br>
+          {% else %}
           <div>
             {% if env_data['event_selected'] %}
             {% for event_calendar in events_calendar %}
@@ -77,14 +80,27 @@
                 {% for agenda_item in agenda_items %}
                 {% if agenda_item['type'] == 'header' %}
                 <li class="list-group-item text-bg-secondary">{{ agenda_item['title'] }}</li>
+                {% elif agenda_item['type'] == 'song' %}
+                <li class="list-group-item">
+                  <p class="fw-bold mb-1">{{ agenda_item['title'] }}</p>
+                  <p class="mt-1">{{ agenda_item['song']['title'] }}</p>
+                  {% if agenda_item['note'] %}<p>{{ agenda_item['note'] }}</p>{% endif %}
+                </li>
                 {% else %}
-                <li class="list-group-item">{{ agenda_item['title'] }}</li>
+                <li class="list-group-item">
+                  <p class="fw-bold mb-1">{{ agenda_item['title'] }}</p>
+                  {% if agenda_item['note'] %}<p class="mt-1"> {{ agenda_item['note'] }}</p>{% endif %}
+                </li>
                 {% endif %}
                 {% endfor %}
               </ul>
             </div>
             {% endif %}
           <div>
+          <br>
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary mb-3 mt-4" name="download" value="Download">Download</button>
+          </div>
           {% endif %}
         </form>
       </div>

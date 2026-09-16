@@ -65,6 +65,27 @@ class churchtools:
         logger.error(result.text)
 
 
+  def ct_get_song_file(self, arrangement_id):
+    
+    # --- Check for existing arrangement file
+
+    # Create requets session (workaround for requets module due to non standard "files[]" key in POST)
+    ct_session = requests.sessions.Session()
+    ct_session.get(f"{self.CT_URL}/whoami", headers=self.CT_HEADERS_JSON)
+
+    # Get CSRF token and add to new header
+    csrf_token_response = ct_session.get(f"{self.CT_URL}/csrftoken", headers=self.CT_HEADERS_FORM)
+    headers = dict(ct_session.headers)
+    headers.update({"CSRF-Token": json.loads(csrf_token_response.text)["data"]})
+
+    try:
+      (result:= ct_session.get(url = f"{self.CT_URL}/files/song_arrangement/{arrangement_id}", headers = headers)).raise_for_status()
+      return json.loads(result.text)["data"]
+    except requests.exceptions.HTTPError as err:
+        logger.error(err)
+        logger.error(result.text) 
+    finally:
+      ct_session.close()
 
 ######## OLD ##################
 
@@ -307,30 +328,6 @@ class churchtools:
       ct_session.delete(url = f"{self.CT_URL}/files/song_arrangement/{arrangement_id}", headers = headers).raise_for_status()
     except requests.exceptions.HTTPError as err:
         logger.error(err)
-    finally:
-      ct_session.close()
-
-
-
-  def ct_get_song_file(self, arrangement_id):
-    
-    # --- Check for existing arrangement file
-
-    # Create requets session (workaround for requets module due to non standard "files[]" key in POST)
-    ct_session = requests.sessions.Session()
-    ct_session.get(f"{self.CT_URL}/whoami", headers=self.CT_HEADERS_JSON)
-
-    # Get CSRF token ad add to new header
-    csrf_token_response = ct_session.get(f"{self.CT_URL}/csrftoken", headers=self.CT_HEADERS_FORM)
-    headers = dict(ct_session.headers)
-    headers.update({"CSRF-Token": json.loads(csrf_token_response.text)["data"]})
-
-    try:
-      (result:= ct_session.get(url = f"{self.CT_URL}/files/song_arrangement/{arrangement_id}", headers = headers)).raise_for_status()
-      return json.loads(result.text)["data"]
-    except requests.exceptions.HTTPError as err:
-        logger.error(err)
-        logger.error(result.text) 
     finally:
       ct_session.close()
 

@@ -1,3 +1,4 @@
 flask
 multidict
 requests
+jinja2

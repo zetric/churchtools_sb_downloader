@@ -3,6 +3,7 @@ import logging
 import modules.churchtools as churchtools
 import datetime
 
+
 logging.basicConfig(level="INFO", format='%(asctime)s-%(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -48,17 +49,46 @@ def main():
       date_start = date_now.strftime("%Y-%m-%d")
       date_end = date_later.strftime("%Y-%m-%d")
 
+
       # Get events of selected calendar
       events = ct.ct_get_events(date_start=date_start, date_end=date_end)
       for event in events:
         if event['calendar']['title'] == env_data['calendar_selected']:
           events_calendar.append(event)
-      
-      print(env_data['event_selected'])
 
       if 'event_selected' in env_data:
-        # Get event agenda
-        agenda_items = ct.ct_get_agenda(event_id=env_data['event_selected'])['items']
+
+        if 'event_selected' in env_data:
+          # Get event agenda
+          agenda_items = ct.ct_get_agenda(event_id=env_data['event_selected'])['items']
+
+
+          if 'download' in env_data:
+
+            # Get files for event
+            agenda_array = []
+            for item in agenda_items:
+              agenda_element = {}
+              match item['type']:
+                case 'text' | 'header':
+                  agenda_element = {
+                    "title": item['title'],
+                    "type": item['type']
+                  }
+                case "song":
+                  file_element = ct.ct_get_song_file(arrangement_id=item['song']['arrangementId'])
+                  file_url = file_element[0]['fileUrl']
+                  # TODO: Download file
+                  agenda_element = {
+                    "title": item['title'],
+                    "type": item['type'],
+                    "fileName": file_element[0]['name']
+                  }
+              agenda_array.append(agenda_element)
+
+            print(agenda_array[3])
+
+
 
     return render_template(
       'home.html',
