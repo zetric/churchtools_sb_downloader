@@ -1,15 +1,22 @@
 from flask import Flask, render_template, jsonify, request
 import logging
 import modules.churchtools as churchtools
+import modules.songbeamer as songbeamer
 import datetime
-
+import shutil
+import os
 
 logging.basicConfig(level="INFO", format='%(asctime)s-%(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 CT_API_PAGE_LIMIT = 100
+TMP_FOLDER = "tmp"
 
 app = Flask(__name__)
+
+logger.debug("Cleaning up...")
+# if os.path.exists(TMP_FOLDER):
+#   shutil.rmtree(TMP_FOLDER)
 
 @app.route("/", methods=['get','post'])
 def main():
@@ -76,17 +83,32 @@ def main():
                     "type": item['type']
                   }
                 case "song":
-                  file_element = ct.ct_get_song_file(arrangement_id=item['song']['arrangementId'])
-                  file_url = file_element[0]['fileUrl']
-                  # TODO: Download file
+                  file_element = ct.ct_get_song_file_element(arrangement_id=item['song']['arrangementId'])
+                  fileUrl = file_element[0]['fileUrl']
+                  logger.debug("Creating TMP folder")
+                  if not os.path.exists(TMP_FOLDER):
+                    os.makedirs(f"{TMP_FOLDER}/Songs")
+                    os.makedirs(f"{TMP_FOLDER}/Files")
+                  ct.ct_download_song_file(fileName=file_element[0]['name'], fileUrl=fileUrl, target_path=TMP_FOLDER)
+                  # Check if Song title is not set and replace with file name
+                  if item['title'] == "Lied" or item['title'] == "":
+                    item['title'] = file_element[0]['name'].split('.')[0]
                   agenda_element = {
                     "title": item['title'],
                     "type": item['type'],
-                    "fileName": file_element[0]['name']
+                    "fileName": file_element[0]['name'],
+                    "note": item['note']
                   }
               agenda_array.append(agenda_element)
 
-            print(agenda_array[3])
+            # Parse SB collection template
+            sb = songbeamer.songbeamer()
+            sb.sb_render_template(agenda=agenda_array, target_path=TMP_FOLDER)
+            
+
+            logger.debug("Cleaning up...")
+        # if os.path.exists(TMP_FOLDER):
+        #   shutil.rmtree(TMP_FOLDER)
 
 
 
@@ -104,27 +126,8 @@ def main():
 
     return render_template('home.html')
 
-# @app.route("/api/trainings")
-# def list_trainings():
-#   trainings = load_trainings_from_db()
-#   return jsonify(trainings)
+# TODO: Cleanup tmp folders
 
-# @app.route("/training/<id>")
-# def show_training(id):
-#   training = load_training_from_db(id)
-#   if not training:
-#     return "Not Found", 404
-#   else:
-#     return render_template('trainingpage.html',training=training)
-
-# @app.route("/training/<id>/apply", methods=['post'])
-# def apply_to_training(id):
-#   data = request.form
-#   training = load_training_from_db(id)
-#   add_application_to_db(id, data)
-
-  # send an email
-  return render_template('application_submitted.html', application=data, training=training)
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', debug=True)

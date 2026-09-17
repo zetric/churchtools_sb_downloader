@@ -3,17 +3,15 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 
 class songbeamer:
 
-
-
-  def sb_render_template(self, agenda):
+  def sb_render_template(self, agenda, target_path):
 
     # Load jinja2 environment
     env = Environment(
-        loader=PackageLoader("songbeamer"),
+        loader=PackageLoader("app"),
         autoescape=select_autoescape()
     )
 
-    template = env.get_template("modules/songbeamer_collection.sb")
+    template = env.get_template("songbeamer_collection.sb")
 
     # Change special characters to fit songbeamer format
     def to_pascal_cp1252(s):
@@ -37,10 +35,9 @@ class songbeamer:
 
     agenda_formated = convert_json(agenda)
 
-    # Add download URL for song file
-    for item in agenda_formated:
-      if item['type'] == "song":
-
 
     print(template.render(agenda=agenda_formated))
-
+    
+    # Write rendered SB collection  to file
+    with open(f"{target_path}/Schedule.col", 'w') as file:
+      file.write(template.render(agenda=agenda_formated))

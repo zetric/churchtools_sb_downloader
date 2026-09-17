@@ -1,91 +1,17 @@
 object AblaufPlanItems: TAblaufPlanItems
-  items = <
-    {% for agenda_item in agenda_items %}
-    {% if agenda_item['type'] == 'header' %}
+  items = <{% for agenda_item in agenda %}{% if agenda_item['type'] == 'header' %}
+    item
+      Caption = '{{ agenda_item['title'] }}'
+      Color = clWhite
+      BGColor = 3277012
+    end{% elif agenda_item['type'] == 'text' %}
     item
       Caption = '{{ agenda_item['title'] }}'
       Color = clBlack
-    end
-    {% elif agenda_item['type'] == 'text' %}
+    end{% elif agenda_item['type'] == 'song' %}
     item
-      Caption = '{{ agenda_item['title'] }}'
-      Color = 16711920
-    end
-    {% elif agenda_item['type'] == 'song' %}
-    item
-      Caption = '{{ agenda_item['title'] }}'
+      Caption = '{{ agenda_item['title'] }}{% if agenda_item['note'] %} - {{ agenda_item['note'] }}{% endif %}'
       Color = clBlue
-      FileName = '6-Anker in der Zeit.sng'
-    end
-    {% endif %}
-    {% endfor %}
-    item
-      Caption = '1 - Mein Mund besinge tausendfach'
-      Color = clBlue
-    end
-    item
-      Caption = 'Gebet'
-      Color = 16711920
-    end
-    item
-      Caption = 'Anker in der Zeit'
-      Color = clBlue
-      FileName = '6-Anker in der Zeit.sng'
-    end
-    item
-      Caption = 'Verabschiedung der Kirchenkinder'
-      Color = 16711920
-    end
-    item
-      Caption = 'H'#246'ren'
-      Color = clBlack
-    end
-    item
-      Caption = 'Lesung'
-      Color = 16711920
-    end
-    item
-      Caption = 'Lied'
-      Color = 16711920
-    end
-    item
-      Caption = 'Input'
-      Color = 16711920
-    end
-    item
-      Caption = 'Lied'
-      Color = 16711920
-    end
-    item
-      Caption = 'Gebet / F'#252'rbitten / Vater Unser'
-      Color = 16711920
-    end
-    item
-      Caption = 'Lied'
-      Color = 16711920
-    end
-    item
-      Caption = 'Teilen'
-      Color = clBlack
-    end
-    item
-      Caption = 'Bekanntgaben / Zeit der Gemeinschaft'
-      Color = 16711920
-    end
-    item
-      Caption = 'Kollekte'
-      Color = 16711920
-    end
-    item
-      Caption = 'Weitergehen'
-      Color = clBlack
-    end
-    item
-      Caption = 'Segen'
-      Color = 16711920
-    end
-    item
-      Caption = 'Nachspiel'
-      Color = 16711920
-    end>
+      FileName = '{{ agenda_item['fileName'] }}'
+    end{% endif %}{% endfor %}>
 end

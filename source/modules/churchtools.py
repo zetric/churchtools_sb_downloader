@@ -2,6 +2,7 @@ import requests
 import logging
 import json
 from datetime import datetime
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +66,7 @@ class churchtools:
         logger.error(result.text)
 
 
-  def ct_get_song_file(self, arrangement_id):
+  def ct_get_song_file_element(self, arrangement_id):
     
     # --- Check for existing arrangement file
 
@@ -86,6 +87,23 @@ class churchtools:
         logger.error(result.text) 
     finally:
       ct_session.close()
+
+
+  def ct_download_song_file(self, fileName, fileUrl, target_path):
+
+    try:
+      (result:= requests.get(url = fileUrl, headers=self.CT_HEADERS_JSON)).raise_for_status()
+      if fileName.split('.')[-1] == 'sng':
+        with open(f"{target_path}/Songs/{fileName}", 'wb') as file:
+          file.write(result.content)
+      else:
+        with open(f"{target_path}/Files/{fileName}", 'wb') as file:
+                  file.write(result.content)
+      return True
+    except requests.exceptions.HTTPError as err:
+        logger.error(err)
+        logger.error(result.text)
+
 
 ######## OLD ##################
 
