@@ -94,10 +94,10 @@ class churchtools:
     try:
       (result:= requests.get(url = fileUrl, headers=self.CT_HEADERS_JSON)).raise_for_status()
       if fileName.split('.')[-1] == 'sng':
-        with open(f"{target_path}/Songs/{fileName}", 'wb') as file:
+        with open(f"{target_path}/{fileName}", 'wb') as file:
           file.write(result.content)
       else:
-        with open(f"{target_path}/Files/{fileName}", 'wb') as file:
+        with open(f"{target_path}/{fileName}", 'wb') as file:
                   file.write(result.content)
       return True
     except requests.exceptions.HTTPError as err:

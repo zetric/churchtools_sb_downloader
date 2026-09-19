@@ -1,5 +1,9 @@
 import logging
 from jinja2 import Environment, PackageLoader, select_autoescape
+import os
+import zipfile
+
+logger = logging.getLogger(__name__)
 
 class songbeamer:
 
@@ -23,21 +27,47 @@ class songbeamer:
               result.append(f"'#{b}'")
       return "".join(result)
 
-    def convert_json(obj):
+    def convert_json(obj, key_marker=None):
+      """
+      Recursively convert JSON-like structures. If `key_marker` is provided,
+      only string values whose parent key contains `key_marker` will be
+      transformed with `to_pascal_cp1252`. Otherwise string values are
+      returned unchanged.
+      """
       if isinstance(obj, dict):
-          return {k: convert_json(v) for k, v in obj.items()}
+        new = {}
+        for k, v in obj.items():
+          # propagate marker if current key contains it
+          marker = key_marker
+          if key_marker is None and isinstance(k, str) and "title" in k:
+            marker = "title"
+          new[k] = convert_json(v, key_marker=marker)
+        return new
       elif isinstance(obj, list):
-          return [convert_json(item) for item in obj]
+        return [convert_json(item, key_marker=key_marker) for item in obj]
       elif isinstance(obj, str):
+        if key_marker is not None:
           return to_pascal_cp1252(obj)
+        return obj
       else:
-          return obj
+        return obj
 
     agenda_formated = convert_json(agenda)
 
+    # DEBUG
+    #print(template.render(agenda=agenda_formated))
+    # DEBUG
+    logger.debug(os.listdir("./"))
 
-    print(template.render(agenda=agenda_formated))
-    
     # Write rendered SB collection  to file
     with open(f"{target_path}/Schedule.col", 'w') as file:
       file.write(template.render(agenda=agenda_formated))
+
+  def zip_file(self, path, fileName):
+
+    with zipfile.ZipFile(fileName, 'w', zipfile.ZIP_DEFLATED) as zipf:
+      # ziph is zipfile handle
+      for root, dirs, files in os.walk(path):
+          for file in files:
+              zipf.write(os.path.join(root, file), 
+                        os.path.relpath(os.path.join(root, file), os.path.dirname(path)))

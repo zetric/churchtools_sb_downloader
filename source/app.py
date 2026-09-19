@@ -1,22 +1,21 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_file
 import logging
 import modules.churchtools as churchtools
 import modules.songbeamer as songbeamer
 import datetime
 import shutil
 import os
+import time
 
-logging.basicConfig(level="INFO", format='%(asctime)s-%(levelname)s - %(message)s')
+logging.basicConfig(level="DEBUG", format='%(asctime)s-%(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 CT_API_PAGE_LIMIT = 100
 TMP_FOLDER = "tmp"
+SB_ZIP_NAME = "Songbeamer_Paket.zip"
+SB_ZIP_EXTRACTION_PATH = 'C:\\temp\\sb'
 
 app = Flask(__name__)
-
-logger.debug("Cleaning up...")
-# if os.path.exists(TMP_FOLDER):
-#   shutil.rmtree(TMP_FOLDER)
 
 @app.route("/", methods=['get','post'])
 def main():
@@ -72,6 +71,12 @@ def main():
 
           if 'download' in env_data:
 
+            logger.debug("Cleaning up...")
+            if os.path.exists(TMP_FOLDER):
+              shutil.rmtree(TMP_FOLDER)
+            logger.debug("Creating TMP folder")
+            os.makedirs(TMP_FOLDER, exist_ok=True)
+
             # Get files for event
             agenda_array = []
             for item in agenda_items:
@@ -85,10 +90,6 @@ def main():
                 case "song":
                   file_element = ct.ct_get_song_file_element(arrangement_id=item['song']['arrangementId'])
                   fileUrl = file_element[0]['fileUrl']
-                  logger.debug("Creating TMP folder")
-                  if not os.path.exists(TMP_FOLDER):
-                    os.makedirs(f"{TMP_FOLDER}/Songs")
-                    os.makedirs(f"{TMP_FOLDER}/Files")
                   ct.ct_download_song_file(fileName=file_element[0]['name'], fileUrl=fileUrl, target_path=TMP_FOLDER)
                   # Check if Song title is not set and replace with file name
                   if item['title'] == "Lied" or item['title'] == "":
@@ -96,19 +97,27 @@ def main():
                   agenda_element = {
                     "title": item['title'],
                     "type": item['type'],
-                    "fileName": file_element[0]['name'],
+                    "fileName": f"{SB_ZIP_EXTRACTION_PATH}\\{file_element[0]['name']}",
                     "note": item['note']
                   }
               agenda_array.append(agenda_element)
 
+            # DEBUG
+            logger.debug(os.listdir("./"))
+
             # Parse SB collection template
             sb = songbeamer.songbeamer()
             sb.sb_render_template(agenda=agenda_array, target_path=TMP_FOLDER)
-            
+            sb.zip_file(path=f"{TMP_FOLDER}/", fileName=SB_ZIP_NAME)
 
             logger.debug("Cleaning up...")
-        # if os.path.exists(TMP_FOLDER):
-        #   shutil.rmtree(TMP_FOLDER)
+            if os.path.exists(TMP_FOLDER):
+              shutil.rmtree(TMP_FOLDER)
+
+            return send_file(SB_ZIP_NAME, as_attachment=True)
+
+            
+        
 
 
 
@@ -125,8 +134,6 @@ def main():
   else:
 
     return render_template('home.html')
-
-# TODO: Cleanup tmp folders
 
 
 if __name__ == "__main__":

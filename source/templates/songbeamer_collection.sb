@@ -12,6 +12,7 @@ object AblaufPlanItems: TAblaufPlanItems
     item
       Caption = '{{ agenda_item['title'] }}{% if agenda_item['note'] %} - {{ agenda_item['note'] }}{% endif %}'
       Color = clBlue
+      BGColor = 16638631
       FileName = '{{ agenda_item['fileName'] }}'
     end{% endif %}{% endfor %}>
 end

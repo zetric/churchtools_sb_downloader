@@ -79,7 +79,7 @@
               <ul class="list-group">
                 {% for agenda_item in agenda_items %}
                 {% if agenda_item['type'] == 'header' %}
-                <li class="list-group-item text-bg-secondary">{{ agenda_item['title'] }}</li>
+                <li class="list-group-item text-bg-danger">{{ agenda_item['title'] }}</li>
                 {% elif agenda_item['type'] == 'song' %}
                 <li class="list-group-item">
                   <p class="fw-bold mb-1">{{ agenda_item['title'] }}</p>
@@ -100,6 +100,10 @@
           <br>
           <div class="text-center">
             <button type="submit" class="btn btn-primary mb-3 mt-4" name="download" value="Download">Download</button>
+          </div>
+          <br>
+          <div>
+            <p class="text-secondary position-absolute start-50 translate-middle">ZIP Archiv bitte nach "c:\temp\sb" entpacken.</p>
           </div>
           {% endif %}
         </form>
