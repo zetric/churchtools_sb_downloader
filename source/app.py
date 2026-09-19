@@ -66,55 +66,58 @@ def main():
 
         if 'event_selected' in env_data:
           # Get event agenda
-          agenda_items = ct.ct_get_agenda(event_id=env_data['event_selected'])['items']
+          agenda = ct.ct_get_agenda(event_id=env_data['event_selected'])
 
+          if agenda != None:
 
-          if 'download' in env_data:
+            agenda_items = agenda['items']
 
-            logger.debug("Cleaning up...")
-            if os.path.exists(TMP_FOLDER):
-              shutil.rmtree(TMP_FOLDER)
-            logger.debug("Creating TMP folder")
-            os.makedirs(TMP_FOLDER, exist_ok=True)
+            if 'download' in env_data:
 
-            # Get files for event
-            agenda_array = []
-            for item in agenda_items:
-              agenda_element = {}
-              match item['type']:
-                case 'text' | 'header':
-                  agenda_element = {
-                    "title": item['title'],
-                    "type": item['type']
-                  }
-                case "song":
-                  file_element = ct.ct_get_song_file_element(arrangement_id=item['song']['arrangementId'])
-                  fileUrl = file_element[0]['fileUrl']
-                  ct.ct_download_song_file(fileName=file_element[0]['name'], fileUrl=fileUrl, target_path=TMP_FOLDER)
-                  # Check if Song title is not set and replace with file name
-                  if item['title'] == "Lied" or item['title'] == "":
-                    item['title'] = file_element[0]['name'].split('.')[0]
-                  agenda_element = {
-                    "title": item['title'],
-                    "type": item['type'],
-                    "fileName": f"{SB_ZIP_EXTRACTION_PATH}\\{file_element[0]['name']}",
-                    "note": item['note']
-                  }
-              agenda_array.append(agenda_element)
+              logger.debug("Cleaning up...")
+              if os.path.exists(TMP_FOLDER):
+                shutil.rmtree(TMP_FOLDER)
+              logger.debug("Creating TMP folder")
+              os.makedirs(TMP_FOLDER, exist_ok=True)
 
-            # DEBUG
-            logger.debug(os.listdir("./"))
+              # Get files for event
+              agenda_array = []
+              for item in agenda_items:
+                agenda_element = {}
+                match item['type']:
+                  case 'text' | 'header':
+                    agenda_element = {
+                      "title": item['title'],
+                      "type": item['type']
+                    }
+                  case "song":
+                    file_element = ct.ct_get_song_file_element(arrangement_id=item['song']['arrangementId'])
+                    fileUrl = file_element[0]['fileUrl']
+                    ct.ct_download_song_file(fileName=file_element[0]['name'], fileUrl=fileUrl, target_path=TMP_FOLDER)
+                    # Check if Song title is not set and replace with file name
+                    if item['title'] == "Lied" or item['title'] == "":
+                      item['title'] = file_element[0]['name'].split('.')[0]
+                    agenda_element = {
+                      "title": item['title'],
+                      "type": item['type'],
+                      "fileName": f"{SB_ZIP_EXTRACTION_PATH}\\{file_element[0]['name']}",
+                      "note": item['note']
+                    }
+                agenda_array.append(agenda_element)
 
-            # Parse SB collection template
-            sb = songbeamer.songbeamer()
-            sb.sb_render_template(agenda=agenda_array, target_path=TMP_FOLDER)
-            sb.zip_file(path=f"{TMP_FOLDER}/", fileName=SB_ZIP_NAME)
+              # DEBUG
+              logger.debug(os.listdir("./"))
 
-            logger.debug("Cleaning up...")
-            if os.path.exists(TMP_FOLDER):
-              shutil.rmtree(TMP_FOLDER)
+              # Parse SB collection template
+              sb = songbeamer.songbeamer()
+              sb.sb_render_template(agenda=agenda_array, target_path=TMP_FOLDER)
+              sb.zip_file(path=f"{TMP_FOLDER}/", fileName=SB_ZIP_NAME)
 
-            return send_file(SB_ZIP_NAME, as_attachment=True)
+              logger.debug("Cleaning up...")
+              if os.path.exists(TMP_FOLDER):
+                shutil.rmtree(TMP_FOLDER)
+
+              return send_file(SB_ZIP_NAME, as_attachment=True)
 
             
         
