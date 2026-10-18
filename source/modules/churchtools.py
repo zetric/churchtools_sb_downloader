@@ -89,7 +89,21 @@ class churchtools:
       ct_session.close()
 
 
-  def ct_download_song_file(self, fileName, fileUrl, target_path):
+  def ct_get_event(self, event_id) -> json:
+  
+      # --- Get a agenda of an event by event_id
+  
+      try:
+        (result:= requests.get(url = f"{self.CT_URL}/events/{event_id}", headers = self.CT_HEADERS_JSON)).raise_for_status()
+        result_json = json.loads(result.text)
+        result_json_complete = result_json["data"]
+        return result_json_complete
+      except requests.exceptions.HTTPError as err:
+          logger.error(err)
+          logger.error(result.text)
+
+
+  def ct_download_file(self, fileName, fileUrl, target_path):
 
     try:
       (result:= requests.get(url = fileUrl, headers=self.CT_HEADERS_JSON)).raise_for_status()

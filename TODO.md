@@ -1,0 +1,2 @@
+- Datepicker für Auswahl Zeitraum
+- Übergabe Token, Kalender, etc per URL oder besser per Curl POST

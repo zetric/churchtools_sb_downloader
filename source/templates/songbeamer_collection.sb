@@ -4,6 +4,11 @@ object AblaufPlanItems: TAblaufPlanItems
       Caption = '{{ agenda_item['title'] }}'
       Color = clWhite
       BGColor = 3277012
+    end{% elif agenda_item['type'] == 'header_attachment' %}
+    item
+      Caption = '{{ agenda_item['title'] }}'
+      Color = clWhite
+      BGColor = 6118749
     end{% elif agenda_item['type'] == 'text' %}
     item
       Caption = '{{ agenda_item['title'] }}'
@@ -12,7 +17,11 @@ object AblaufPlanItems: TAblaufPlanItems
     item
       Caption = '{{ agenda_item['title'] }}{% if agenda_item['note'] %} - {{ agenda_item['note'] }}{% endif %}'
       Color = clBlue
-      BGColor = 16638631
+      FileName = '{{ agenda_item['fileName'] }}'
+    end{% elif agenda_item['type'] == 'file' or agenda_item['type'] == 'link' %}
+    item
+      Caption = '{{ agenda_item['title'] }}'
+      Color = 33023
       FileName = '{{ agenda_item['fileName'] }}'
     end{% endif %}{% endfor %}>
 end

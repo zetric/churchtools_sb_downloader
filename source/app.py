@@ -38,6 +38,7 @@ def main():
     calendar_names = []
     events_calendar = []
     agenda_items = []
+    event_selected_object = None
 
     # Get calendar names to use them later to query the events associated with the right calendar
     calendars_json = ct.ct_get_calendars()
@@ -47,14 +48,17 @@ def main():
     # Sort calendar names alphabetically
     calendar_names.sort()
 
+    date_now_datetime = datetime.datetime.now()
+    if 'date_start' in env_data:
+      date_start = env_data['date_start']
+    else:
+      date_start = date_now_datetime.strftime("%Y-%m-%d")
+
     if 'calendar_selected' in env_data:
 
       # Get todays date and the one in 2 weeks
-      date_now = datetime.datetime.now()
-      date_later = date_now + datetime.timedelta(days=14)
-      date_start = date_now.strftime("%Y-%m-%d")
+      date_later = datetime.datetime.fromisoformat(date_start) + datetime.timedelta(days=1)
       date_end = date_later.strftime("%Y-%m-%d")
-
 
       # Get events of selected calendar
       events = ct.ct_get_events(date_start=date_start, date_end=date_end)
@@ -65,6 +69,8 @@ def main():
       if 'event_selected' in env_data:
 
         if 'event_selected' in env_data:
+          # Get single event object
+          event_selected_object = ct.ct_get_event(event_id=env_data['event_selected'])
           # Get event agenda
           agenda = ct.ct_get_agenda(event_id=env_data['event_selected'])
 
@@ -72,13 +78,38 @@ def main():
 
             agenda_items = agenda['items']
 
-            if 'download' in env_data:
+            if 'download_sb' in env_data:
 
               logger.debug("Cleaning up...")
               if os.path.exists(TMP_FOLDER):
                 shutil.rmtree(TMP_FOLDER)
               logger.debug("Creating TMP folder")
               os.makedirs(TMP_FOLDER, exist_ok=True)
+
+              # Extend agenda by attachments if existing
+              if len(event['eventFiles']) > 0:
+                agenda_items.append({
+                  "title": "Anhänge",
+                  "type": "header_attachment"
+                })
+                for attachment in event['eventFiles']:
+                  # If attachment is a file
+                  agenda_element = {}
+                  if attachment['domainType'] == "file":
+                    ct.ct_download_file(fileName=attachment['title'], fileUrl=attachment['frontendUrl'], target_path=TMP_FOLDER)
+                    agenda_element = {
+                      "title": attachment['title'],
+                      "type" : attachment['domainType'],
+                      "fileName": f"{SB_ZIP_EXTRACTION_PATH}\\{attachment['title']}"
+                    }
+                    # If attachment is a link
+                  if attachment['domainType'] == "link":
+                    agenda_element = {
+                      "title": attachment['title'],
+                      "type" : attachment['domainType'],
+                      "fileName": attachment['frontendUrl']
+                    }
+                  agenda_items.append(agenda_element)
 
               # Get files for event
               agenda_array = []
@@ -93,7 +124,7 @@ def main():
                   case "song":
                     file_element = ct.ct_get_song_file_element(arrangement_id=item['song']['arrangementId'])
                     fileUrl = file_element[0]['fileUrl']
-                    ct.ct_download_song_file(fileName=file_element[0]['name'], fileUrl=fileUrl, target_path=TMP_FOLDER)
+                    ct.ct_download_file(fileName=file_element[0]['name'], fileUrl=fileUrl, target_path=TMP_FOLDER)
                     # Check if Song title is not set and replace with file name
                     if item['title'] == "Lied" or item['title'] == "":
                       item['title'] = file_element[0]['name'].split('.')[0]
@@ -103,6 +134,8 @@ def main():
                       "fileName": f"{SB_ZIP_EXTRACTION_PATH}\\{file_element[0]['name']}",
                       "note": item['note']
                     }
+                  case _:
+                    agenda_element = item
                 agenda_array.append(agenda_element)
 
               # DEBUG
@@ -119,17 +152,15 @@ def main():
 
               return send_file(SB_ZIP_NAME, as_attachment=True)
 
-            
-        
-
-
 
     return render_template(
       'home.html',
       env_data=env_data,
       calendar_names=calendar_names,
       events_calendar=events_calendar,
-      agenda_items=agenda_items
+      agenda_items=agenda_items,
+      event=event_selected_object,
+      date_start=date_start
     )
 
 

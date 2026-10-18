@@ -34,6 +34,9 @@
               {% endfor %}
             </select>
           </div>
+          <br>
+          <label for="date_start">Datum</label>
+          <input id="date_start" class="form-control" name="date_start" type="date" value="{{ date_start }}" onchange="this.form.submit()" />
           {% endif %}
           <br>
           {% if not events_calendar %}
@@ -82,30 +85,43 @@
                 <li class="list-group-item text-bg-danger">{{ agenda_item['title'] }}</li>
                 {% elif agenda_item['type'] == 'song' %}
                 <li class="list-group-item">
-                  <p class="fw-bold mb-1">{{ agenda_item['title'] }}</p>
-                  <p class="mt-1">{{ agenda_item['song']['title'] }}</p>
-                  {% if agenda_item['note'] %}<p>{{ agenda_item['note'] }}</p>{% endif %}
+                  <p class="fw-bold mb-auto">{{ agenda_item['title'] }}</p>
+                  <p class="mt-0 mb-0">{{ agenda_item['song']['title'] }}</p>
+                  {% if agenda_item['note'] %}<p class="mt-0 mb-0">{{ agenda_item['note'] }}</p>{% endif %}
                 </li>
                 {% else %}
                 <li class="list-group-item">
-                  <p class="fw-bold mb-1">{{ agenda_item['title'] }}</p>
-                  {% if agenda_item['note'] %}<p class="mt-1"> {{ agenda_item['note'] }}</p>{% endif %}
+                  <p class="fw-bold mb-auto">{{ agenda_item['title'] }}</p>
+                  {% if agenda_item['note'] %}<p class="mt-0"> {{ agenda_item['note'] }}</p>{% endif %}
                 </li>
                 {% endif %}
                 {% endfor %}
               </ul>
             </div>
+            {% if event['eventFiles'] | length > 0 %}
+            <br>
+            <div>
+              <p class="fw-bold">Anhänge:</p>
+              {% for attachment in event['eventFiles'] %}
+              {% if attachment['domainType'] == "file" %}
+              <p>💾 <a href="{{ attachment['frontendUrl']}}">{{ attachment['title']}}</a></p>
+              {% elif attachment['domainType'] == "link" %}
+              <p>🔗 <a href="{{ attachment['frontendUrl']}}">{{ attachment['title']}}</a></p>
+              {% endif %}
+              {% endfor %}
+            </div>
             {% endif %}
           <div>
           <br>
           <div class="text-center">
-            <button type="submit" class="btn btn-primary mb-3 mt-4" name="download" value="Download">Download</button>
+            <button type="submit" class="btn btn-primary mb-3 mt-4" name="download_sb" value="Download">Download Songbeamer Paket</button>
           </div>
           <br>
           <div>
-            <p class="text-secondary text-start position-absolute"><strong>Manuell</strong>: ZIP Archiv bitte nach "c:\temp\sb" entpacken und den "Schedule.col" Ablauf in Songbeamer öffnen.</p><br>
-            <p class="text-secondary text-start position-absolute"><strong>Automatisch</strong>: Das Batch Skript "local_commands.bat" ausführen.</p>
+            <div class="text-secondary text-start position-relative"><strong>Manuell</strong>: ZIP Archiv bitte nach "c:\temp\sb" entpacken und den "Schedule.col" Ablauf in Songbeamer öffnen.</div>
+            <div class="text-secondary text-start position-relative"><strong>Automatisch</strong>: Das Batch Skript "local_commands.bat" ausführen.</div>
           </div>
+          {% endif %}
           {% endif %}
         </form>
       </div>
