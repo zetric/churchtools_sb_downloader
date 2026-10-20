@@ -17,6 +17,8 @@ spec:
       labels:
         app: {{ .Values.name }}
     spec:
+      imagePullSecrets:
+          - name: {{ .Values.image.pullSecret }}
       containers:
       - name: {{ .Values.name }}
         {{- if .Values.image.repository }}
