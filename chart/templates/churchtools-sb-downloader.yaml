@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    deployment: {{ .Values.deploymentName }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+      - name: {{ .Values.name }}
+        {{- if .Values.image.repository }}
+        image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.version }}"
+        {{ else }}
+        image: "{{ .Values.image.name }}:{{ .Values.image.version }}"
+        {{- end }}
+        resources:
+          requests:
+            memory: "{{ .Values.memoryRequests }}"
+          limits:
+            memory: "{{ .Values.memoryLimits }}"
+        env:
+        {{- range $key, $val := .Values.environment }}
+        - name: {{ $key }}
+          value: "{{ $val }}"
+        {{- end}}
+        ports:
+        - name: html
+          containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.name }}
+spec:
+  {{- if .Values.services.clusterIP }}
+  clusterIP: {{ .Values.services.clusterIP }}
+  {{- end }}
+  ports:
+  {{- range $index, $value := .Values.services.ports }}
+  - name: {{ $value.name }}
+    port: {{ $value.port }}
+    protocol: {{ $value.protocol }}
+    targetPort: {{ $value.targetPort }}
+    {{- if $value.nodePort }}
+    nodePort: {{ $value.nodePort }}
+    {{- end }}
+  {{- end }}
+  selector:
+    app: {{ .Values.name }}
+  type: {{ .Values.services.type }}
