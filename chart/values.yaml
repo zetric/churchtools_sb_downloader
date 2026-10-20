@@ -1,26 +1,24 @@
 namespace: churchtools
 
-service:
+name: churchtools-sb-downloader
 
-  name: churchtools-sb-downloader
-  
-  image:
-    repository: repo
-    name: churchtools/churchtools-sb-downloader
-    version: "1.0"
-    pullSecret: dockerregistry
+image:
+  repository: repo
+  name: churchtools/churchtools-sb-downloader
+  version: "1.0"
+  pullSecret: dockerregistry
 
-  memoryRequests: 10M
-  memoryLimits: 100M
+memoryRequests: 10M
+memoryLimits: 100M
 
-  environment:
-    # Loglevel
-    LOGLEVEL: "INFO"
+environment:
+  # Loglevel
+  LOGLEVEL: "INFO"
 
-  services:
-    type: ClusterIP
-    ports:
-    - name: churchtools-sb-downloader
-      port: 80
-      protocol: TCP
-      targetPort: html
+services:
+  type: ClusterIP
+  ports:
+  - name: churchtools-sb-downloader
+    port: 80
+    protocol: TCP
+    targetPort: html
