@@ -54,9 +54,6 @@ class songbeamer:
 
     agenda_formated = convert_json(agenda)
 
-    # DEBUG
-    #print(template.render(agenda=agenda_formated))
-    # DEBUG
     logger.debug(os.listdir("./"))
 
     # Write rendered SB collection  to file

@@ -1,0 +1,16 @@
+<script>
+function togglePasswordVisibility() {
+      const passwordInput = document.getElementById("token");
+      const icon = document.querySelector(".icon");
+
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        icon.classList.remove("closed");
+        icon.classList.add("open");
+      } else {
+        passwordInput.type = "password";
+        icon.classList.remove("open");
+        icon.classList.add("closed");
+      }
+    }
+</script>

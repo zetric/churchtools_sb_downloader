@@ -3,6 +3,8 @@
   <head>
     <title>ChurchTools SongBeamer Downloader</title>
     {% include 'bootstrap.html' %}
+    {% include 'scripts.html' %}
+    {% include 'style.html' %}
   </head>
   <body>
     <div class="container col-md-6">
@@ -10,21 +12,25 @@
       <div class="row">
         <form action="/" method="post" id="main_form">
           <div>
-            <h2 class="text-center mt-2 mb-4">Instanz</h2>
+            <h3 class="text-center mt-2 mb-4">Instanz</h3>
             <select class="form-select" aria-label="Instanz" name="instance">
               <option selected>{{ env_data['instance'] if env_data is defined else "emk-rheinmain.church.tools" }}</option>
             </select>
           </div>
+          <br>
           <div>
-            <h2 class="text-center mt-2 mb-4">Token</h2>
-            <input type="text" class="form-control" name="token" placeholder="" value="{{ env_data['token'] if env_data is defined }}">
+            <h3 class="text-center mt-2 mb-4">Token</h3>
+            <div class="input-wrapper">
+              <input type="password" class="form-control" name="token" placeholder="" id="token" value="{{ env_data['token'] if env_data is defined }}">
+              <i class="icon closed" onclick="togglePasswordVisibility()"></i>
+            </div>
           </div>
           <div class="text-center">
             <input type="submit" class="btn btn-primary mb-3 mt-4" name="" value="Absenden">
           </div>
           {% if calendar_names and env_data['token'] %}
           <div>
-            <h2 class="text-center mt-2 mb-4">Kalender</h2>
+            <h3 class="text-center mt-2 mb-4">Kalender</h3>
             <select class="form-select" aria-label="Instanz" name="calendar_selected" id="calendar_selected" onchange="this.form.submit()">
               {% if env_data['calendar_selected'] %}
               <option value="{{ env_data['calendar_selected'] }}" selected>{{ env_data['calendar_selected'] }}</option>
@@ -35,7 +41,7 @@
             </select>
           </div>
           <br>
-          <label for="date_start">Datum</label>
+          <h3 class="text-center mt-2 mb-4">Datum</h3>
           <input id="date_start" class="form-control" name="date_start" type="date" value="{{ date_start }}" onchange="this.form.submit()" />
           {% endif %}
           <br>
@@ -45,6 +51,7 @@
           </div>
           <br>
           {% else %}
+          <h3 class="text-center mt-2 mb-4">Events</h3>
           <div>
             {% if env_data['event_selected'] %}
             {% for event_calendar in events_calendar %}
@@ -78,6 +85,7 @@
             {% endif %}
             <br>
             {% if env_data['event_selected'] %}
+            <h3 class="text-center mt-2 mb-4">Ablauf</h3>
             <div>
               <ul class="list-group">
                 {% for agenda_item in agenda_items %}
@@ -125,11 +133,12 @@
           {% endif %}
         </form>
       </div>
-      <p>
-        <!-- {% for training in trainings %}
-          {% include 'trainingitems.html' %}
-        {% endfor %} -->
-      </p>
+    {% if error %}
+    <br>
+    <div>
+      <p class="text-center text-bg-danger mt-2 mb-4 p-2 rounded">{{ error }}</p>
+    </div>
+    {% endif %}
     </div>
     {% include 'footer.html' %}
   </body>
