@@ -12,10 +12,8 @@
       <div class="row">
         <form action="/" method="post" id="main_form">
           <div>
-            <h3 class="text-center mt-2 mb-4">Instanz</h3>
-            <select class="form-select" aria-label="Instanz" name="instance">
-              <option selected>{{ env_data['instance'] if env_data is defined else "emk-rheinmain.church.tools" }}</option>
-            </select>
+            <h3 class="text-center mt-2 mb-4">URL Instanz</h3>
+            <input class="form-control" aria-label="Instanz" name="instance" value="{{ env_data['instance'] if env_data is defined }}">
           </div>
           <br>
           <div>
@@ -127,7 +125,7 @@
           <br>
           <div>
             <div class="text-secondary text-start position-relative"><strong>Manuell</strong>: ZIP Archiv bitte nach "c:\temp\sb" entpacken und den "Schedule.col" Ablauf in Songbeamer öffnen.</div>
-            <div class="text-secondary text-start position-relative"><strong>Automatisch</strong>: Das Batch Skript "local_commands.bat" ausführen.</div>
+            <div class="text-secondary text-start position-relative"><strong>Automatisch</strong>: Das Batch Skript "local_commands.bat" ausführen (im unten verlinkten GitHub Repository zu finden).</div>
           </div>
           {% endif %}
           {% endif %}

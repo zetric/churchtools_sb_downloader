@@ -51,7 +51,7 @@ def main():
       # Get calendar names to use them later to query the events associated with the right calendar
       if (calendars_json := ct.ct_get_calendars())[1] == False:
         logger.error("Error during loading calendars: " + str(calendars_json[0]))
-        return render_template('home.html', error=f"Fehler beim Laden der Kalender: {calendars_json[0]}")
+        return render_template('home.html', env_data=env_data, error=f"Fehler beim Laden der Kalender: {calendars_json[0]}")
       
       for calendar in calendars_json[1]:
         calendar_names.append(calendar['name'])
@@ -78,7 +78,7 @@ def main():
         # Get events of selected calendar
         if (events := ct.ct_get_events(date_start=date_start, date_end=date_end))[1] == False:
           logger.error("Error during loading events: " + str(events[0]))
-          return render_template('home.html', error=f"Fehler beim Laden der Events: {events[0]}")
+          return render_template('home.html', env_data=env_data, error=f"Fehler beim Laden der Events: {events[0]}")
 
 
         for event in events[1]:
@@ -91,7 +91,7 @@ def main():
           # Get single event object
           if (event_selected_object := ct.ct_get_event(event_id=env_data['event_selected']))[1] == False:
             logger.error("Error during loading the event: " + str(event_selected_object[0]))
-            return render_template('home.html', error=f"Fehler beim Laden des Events: {event_selected_object[0]}")
+            return render_template('home.html', env_data=env_data, error=f"Fehler beim Laden des Events: {event_selected_object[0]}")
 
           event_selected = event_selected_object[1]
 
@@ -99,7 +99,7 @@ def main():
           logger.info(f"Querying agenda")
           if (agenda := ct.ct_get_agenda(event_id=env_data['event_selected']))[1] == False:
             logger.error("Error during loading the event: " + str(agenda[0]))
-            return render_template('home.html', error=f"Fehler beim Laden des Events: {agenda[0]}")
+            return render_template('home.html', env_data=env_data, error=f"Fehler beim Laden des Events: {agenda[0]}")
 
           if agenda != None:
 
@@ -154,7 +154,7 @@ def main():
                     
                     if (file_element := ct.ct_get_song_file_element(arrangement_id=item['song']['arrangementId']))[1] == False:
                       logger.error("Error during loading the file element: " + str(file_element[0]))
-                      return render_template('home.html', error=f"Fehler beim Laden des Dateielementes: {file_element[0]}")
+                      return render_template('home.html', env_data=env_data, error=f"Fehler beim Laden des Dateielementes: {file_element[0]}")
                     
                     fileUrl = file_element[1][0]['fileUrl']
                     ct.ct_download_file(fileName=file_element[1][0]['name'], fileUrl=fileUrl, target_path=TMP_FOLDER)
@@ -198,11 +198,11 @@ def main():
 
     else:
 
-      return render_template('home.html', error="Keine Instanz oder Token angegeben")
+      return render_template('home.html', env_data=env_data, error="Keine Instanz oder Token angegeben")
 
   else:
 
-    return render_template('home.html', error="Keine Instanz oder Token angegeben")
+    return render_template('home.html', env_data=env_data, error="Keine Instanz oder Token angegeben")
 
 
 if __name__ == "__main__":
