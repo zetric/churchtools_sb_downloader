@@ -41,6 +41,8 @@ class songbeamer:
           marker = key_marker
           if key_marker is None and isinstance(k, str) and "title" in k:
             marker = "title"
+          if key_marker is None and isinstance(k, str) and "fileName" in k:
+            marker = "fileName"
           new[k] = convert_json(v, key_marker=marker)
         return new
       elif isinstance(obj, list):

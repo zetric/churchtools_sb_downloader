@@ -5,7 +5,7 @@ name: churchtools-sb-downloader
 image:
   repository: repo
   name: churchtools/churchtools-sb-downloader
-  version: "1.1"
+  version: "1.1.1"
   pullSecret: dockerregistry
 
 memoryRequests: 10M
